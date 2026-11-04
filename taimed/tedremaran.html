@@ -12,52 +12,76 @@ main { position: relative; isolation: isolate; display: flex; flex-direction: co
 main::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(#000b, transparent 26%, transparent 68%, #000b) }
 h1 { margin: 0; font-size: clamp(1.5rem, 5vw, 2.2rem) }
 p { margin: .4rem 0 }
-#play:not([hidden]) { position: absolute; inset: 0; width: 100%; display: grid; place-items: center; border: 0; background: transparent; cursor: pointer; font: inherit }
-#play span { border-radius: 2rem; background: white; color: #171c17; padding: .85rem 1.35rem; font-weight: 700 }
-#play:focus-visible span { outline: 3px solid #171c17; outline-offset: 3px }
 footer { position: relative; pointer-events: none }
 footer a, footer audio { pointer-events: auto }
 a { color: white }
 audio { width: min(100%, 22rem); margin-bottom: 1rem }
 .back { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: #0009; color: white; text-decoration: none; font-size: 1.25rem }
+.language-controls { position: absolute; inset: 0; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: .75rem; padding: 1rem; pointer-events: none }
+.language-controls[hidden] { display: none }
+.language-controls button { pointer-events: auto; min-height: 44px; border: 0; border-radius: 2rem; background: white; color: #171c17; padding: .75rem 1rem; font: inherit; font-weight: 700; cursor: pointer }
+.language-controls button:focus-visible { outline: 3px solid #171c17; outline-offset: 3px }
 </style>
 </head>
 <body>
 <main>
 <img class="photo" src="../fotod/tedremaran.webp" alt="Tedremaran">
 <header><h1><i>Potentilla erecta</i></h1></header>
-<button type="button" id="play" hidden><span lang="en">▶ Play</span></button>
+<div class="language-controls" hidden>
+<button type="button" data-language="et">▶ Kuula eesti keeles</button>
+<button type="button" data-language="en" lang="en">▶ Listen in English</button>
+</div>
 <footer>
-<audio id="story" controls preload="none" src="../Tedremaran.mp3" aria-label="Tedremaran – taimejutt"></audio>
+<audio id="story-et" controls preload="none" src="../heli-et/tedremaran.mp3" aria-label="Eestikeelne taimejutt"></audio>
+<audio id="story-en" lang="en" controls preload="none" src="../Tedremaran.mp3" aria-label="Plant story in English"></audio>
 <p id="notice" role="status" hidden>Heli ei käivitunud. Proovi helimängijast uuesti.</p>
 <a class="back" href="../index.html" aria-label="Tagasi taimede nimekirja">←</a>
 </footer>
 </main>
 <script>
-const player = document.getElementById('story');
-const button = document.getElementById('play');
+const controls = document.querySelector('.language-controls');
 const notice = document.getElementById('notice');
-button.hidden = false;
-player.hidden = true;
-button.addEventListener('click', async () => {
-  notice.hidden = true;
-  if (!player.paused) {
-    player.pause();
-    return;
+const tracks = [...controls.querySelectorAll('button')].map(button => ({
+  button,
+  player: document.getElementById('story-' + button.dataset.language),
+  playLabel: button.textContent,
+  pauseLabel: button.dataset.language === 'et' ? 'Ⅱ Paus' : 'Ⅱ Pause'
+}));
+
+let latestRequest = 0;
+for (const {button, player, playLabel, pauseLabel} of tracks) {
+  player.hidden = true;
+  function syncButton() {
+    button.textContent = player.paused ? playLabel : pauseLabel;
   }
-  try {
-    await player.play();
-  } catch {
-    player.hidden = false;
-    notice.hidden = false;
+  for (const event of ['play', 'pause', 'ended']) {
+    player.addEventListener(event, syncButton);
   }
-});
-function syncButton() {
-  button.firstElementChild.textContent = player.paused ? '▶ Play' : 'Ⅱ Pause';
+  player.addEventListener('play', () => {
+    for (const track of tracks) {
+      if (track.player !== player) track.player.pause();
+    }
+  });
+  button.addEventListener('click', async () => {
+    const request = ++latestRequest;
+    notice.hidden = true;
+    if (!player.paused) {
+      player.pause();
+      return;
+    }
+    for (const track of tracks) {
+      if (track.player !== player) track.player.pause();
+    }
+    try {
+      await player.play();
+    } catch {
+      if (request !== latestRequest) return;
+      player.hidden = false;
+      notice.hidden = false;
+    }
+  });
 }
-player.addEventListener('play', syncButton);
-player.addEventListener('pause', syncButton);
-player.addEventListener('ended', syncButton);
+controls.hidden = false;
 </script>
 </body>
 </html>
