@@ -1,2 +1,62 @@
 <!doctype html>
-<html lang="et"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Aedtill | Herbaarlehtede näitus</title><style>body{margin:0;background:#f5f4ed;color:#1b2e22;font:1.1rem/1.6 system-ui}main{max-width:36rem;margin:auto;padding:2rem 1.25rem}a{color:#245339}li{margin:.5rem 0}audio{width:100%}</style></head><body><main><p>Herbaarlehtede näitus</p><h1>Aedtill</h1><p>Kuula taimejuttu</p><audio controls preload="none" aria-label="Aedtill – taimejutt" src="../Aedtill.mp3"></audio><p><a href="../index.html">Kõik taimejutud</a></p></main></body></html>
+<html lang="et">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aedtill | Herbaarlehtede näitus</title>
+<style>
+* { box-sizing: border-box }
+body { margin: 0; background: #171c17; color: white; font: 1rem system-ui, sans-serif }
+main { position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; min-height: 100dvh; padding: 1.25rem }
+.photo { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover }
+main::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(#000b, transparent 26%, transparent 68%, #000b) }
+h1 { margin: 0; font-size: clamp(1.5rem, 5vw, 2.2rem) }
+p { margin: .4rem 0 }
+#play:not([hidden]) { position: absolute; inset: 0; width: 100%; display: grid; place-items: center; border: 0; background: transparent; cursor: pointer; font: inherit }
+#play span { border-radius: 2rem; background: white; color: #171c17; padding: .85rem 1.35rem; font-weight: 700 }
+#play:focus-visible span { outline: 3px solid #171c17; outline-offset: 3px }
+footer { position: relative; pointer-events: none }
+footer a, footer audio { pointer-events: auto }
+a { color: white }
+audio { width: min(100%, 22rem); margin-bottom: 1rem }
+</style>
+</head>
+<body>
+<main>
+<img class="photo" src="../fotod/aedtill.webp" alt="Aedtill">
+<header><h1>Aedtill</h1><p><i>Anethum graveolens</i></p></header>
+<button type="button" id="play" hidden><span>▶ Mängi</span></button>
+<footer>
+<audio id="story" controls preload="none" src="../Aedtill.mp3" aria-label="Aedtill – taimejutt"></audio>
+<p id="notice" role="status" hidden>Heli ei käivitunud. Proovi helimängijast uuesti.</p>
+<p><a href="../index.html">Kõik taimejutud</a></p>
+</footer>
+</main>
+<script>
+const player = document.getElementById('story');
+const button = document.getElementById('play');
+const notice = document.getElementById('notice');
+button.hidden = false;
+player.hidden = true;
+button.addEventListener('click', async () => {
+  notice.hidden = true;
+  if (!player.paused) {
+    player.pause();
+    return;
+  }
+  try {
+    await player.play();
+  } catch {
+    player.hidden = false;
+    notice.hidden = false;
+  }
+});
+function syncButton() {
+  button.firstElementChild.textContent = player.paused ? '▶ Mängi' : 'Ⅱ Paus';
+}
+player.addEventListener('play', syncButton);
+player.addEventListener('pause', syncButton);
+player.addEventListener('ended', syncButton);
+</script>
+</body>
+</html>
