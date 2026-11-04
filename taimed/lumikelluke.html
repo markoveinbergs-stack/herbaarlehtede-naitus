@@ -19,6 +19,7 @@ footer { position: relative; pointer-events: none }
 footer a, footer audio { pointer-events: auto }
 a { color: white }
 audio { width: min(100%, 22rem); margin-bottom: 1rem }
+.back { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; background: #0009; color: white; text-decoration: none; font-size: 1.25rem }
 </style>
 </head>
 <body>
@@ -29,7 +30,7 @@ audio { width: min(100%, 22rem); margin-bottom: 1rem }
 <footer>
 <audio id="story" controls preload="none" src="../Lumikelluke.mp3" aria-label="Hariliku lumikellukese taimejutt"></audio>
 <p id="notice" role="status" hidden>Heli ei käivitunud. Proovi helimängijast uuesti.</p>
-<p><a href="../index.html">Kõik taimejutud</a></p>
+<a class="back" href="../index.html" aria-label="Tagasi taimede nimekirja">←</a>
 </footer>
 </main>
 <script>
