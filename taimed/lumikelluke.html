@@ -7,12 +7,16 @@
 <style>
 * { box-sizing: border-box }
 body { margin: 0; background: #171c17; color: white; font: 1rem system-ui, sans-serif }
-main { position: relative; display: grid; grid-template-rows: auto 1fr auto; min-height: 100vh; min-height: 100svh; padding: 1.25rem; isolation: isolate }
-.photo { position: absolute; z-index: -2; width: 100%; height: 100%; object-fit: contain }
-main::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(#000b, transparent 28%, transparent 68%, #000b) }
+main { position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: space-between; min-height: 100vh; min-height: 100dvh; padding: 1.25rem }
+.photo { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover }
+main::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(#000b, transparent 26%, transparent 68%, #000b) }
 h1 { margin: 0; font-size: clamp(1.5rem, 5vw, 2.2rem) }
 p { margin: .4rem 0 }
-button { align-self: end; justify-self: center; margin: 1rem 0 12vh; border: 0; border-radius: 2rem; background: white; color: #171c17; padding: .85rem 1.35rem; font: inherit; font-weight: 700; cursor: pointer }
+#play:not([hidden]) { position: absolute; inset: 0; width: 100%; display: grid; place-items: center; border: 0; background: transparent; cursor: pointer; font: inherit }
+#play span { border-radius: 2rem; background: white; color: #171c17; padding: .85rem 1.35rem; font-weight: 700 }
+#play:focus-visible span { outline: 3px solid #171c17; outline-offset: 3px }
+footer { position: relative; pointer-events: none }
+footer a, footer audio { pointer-events: auto }
 a { color: white }
 audio { width: min(100%, 22rem); margin-bottom: 1rem }
 </style>
@@ -21,7 +25,7 @@ audio { width: min(100%, 22rem); margin-bottom: 1rem }
 <main>
 <img class="photo" src="../fotod/lumikelluke.webp" alt="Õitsevad harilikud lumikellukesed metsa all">
 <header><h1>Harilik lumikelluke</h1><p><i>Galanthus nivalis</i></p></header>
-<button type="button" id="play" hidden>▶ Mängi</button>
+<button type="button" id="play" hidden><span>▶ Mängi</span></button>
 <footer>
 <audio id="story" controls preload="none" src="../Lumikelluke.mp3" aria-label="Hariliku lumikellukese taimejutt"></audio>
 <p id="notice" role="status" hidden>Heli ei käivitunud. Proovi helimängijast uuesti.</p>
@@ -48,7 +52,7 @@ button.addEventListener('click', async () => {
   }
 });
 function syncButton() {
-  button.textContent = player.paused ? '▶ Mängi' : 'Ⅱ Paus';
+  button.firstElementChild.textContent = player.paused ? '▶ Mängi' : 'Ⅱ Paus';
 }
 player.addEventListener('play', syncButton);
 player.addEventListener('pause', syncButton);
